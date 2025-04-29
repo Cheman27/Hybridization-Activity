@@ -1,0 +1,9 @@
+molecule, SMILES
+methylamine, CN
+ethane, CC
+formaldehyde, C=O
+ethene, C=C
+acetonitrile, CC#N
+ethyne, C#C
+pyrrole, C1=CNC=C1
+pyrrolidine, C1CCNC1
