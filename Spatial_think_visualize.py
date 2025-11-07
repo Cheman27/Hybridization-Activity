@@ -39,7 +39,7 @@ def example_code_p_orbital():
     AllChem.EmbedMolecule(eth_mol) # takes the molecules connectivity to generate coordinates that can be used for 3D representations
     Chem.MolToMolFile(eth_mol, 'ethene.mol') # converts smiles data to .mol file for better plotting later. 
     
-    ec3Dpo = JsmolView.from_file('ethane.mol', inline=True) # set variable to plot in Jsmol widget
+    ec3Dpo = JsmolView.from_file('ethene.mol', inline=True) # set variable to plot in Jsmol widget
     display(ec3Dpo) # generate jsmol widget of our variable
     ec3Dpo.script("background white") # set background to white
     ec3Dpo.script("refresh") # refresh widget to prevent buggs
