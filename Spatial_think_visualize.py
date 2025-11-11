@@ -104,6 +104,82 @@ def view2D_flat(molecule_name):
         ma_with_h = Chem.AddHs(ma)
         return Draw.MolToImage(ma_with_h)
 
+def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
+    soup = BeautifulSoup(svg, "xml")
+
+    # Find the group for the oxygen atom (usually atom-1)
+    nitrogen_group = soup.find("g", {"class": f"atom-{nitrogen_idx}"})
+    if not nitrogen_group:
+        print("Could not find nitrogen group.")
+        return svg
+
+    # Try to find the 'circle' or 'text' to extract coordinates
+    circle = nitrogen_group.find("circle")
+    if circle:
+        x = float(circle["cx"])
+        y = float(circle["cy"])
+    else:
+        text = nitrogen_group.find("text")
+        if text:
+            x = float(text["x"])
+            y = float(text["y"])
+        else:
+            print("Could not find position for nitrogen.")
+            return svg
+
+    # Add lone pair dots above
+    dxs = [-3, 3]
+    dy = 6
+    dot_radius = 1.2
+
+    for dx in dxs:
+        dot = soup.new_tag("circle", cx=str(x + dx), cy=str(y - dy),
+                           r=str(dot_radius), fill="red")
+        nitrogen_group.append(dot)
+
+    return str(soup)
+
+# Final combined function
+def view2D_depth_methylamine():
+    mol = Chem.AddHs(Chem.MolFromSmiles("CN"))
+    AllChem.EmbedMolecule(mol)
+    AllChem.Compute2DCoords(mol)
+
+    idx_C = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
+    idx_N = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'N'][0]
+    C_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_C, wedge_bonds=[C_bonds[2]], hash_bonds=[C_bonds[1]])
+
+    # Bond indices around nitrogen
+    N_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_N).GetBonds()] 
+    # Keep N–C bond plain. Assume N_bonds[0] is N–C, others are N–H
+    assign_visual_depth_multiple(mol, idx_N, hash_bonds=[N_bonds[2],N_bonds[1]])
+
+    drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
+    drawer.DrawMolecule(mol)
+    
+    # Get drawing coordinates of nitrogen (in SVG space)
+    draw_coords = drawer.GetDrawCoords(idx_N)
+    svg_x = draw_coords.x
+    svg_y = draw_coords.y
+
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    soup = BeautifulSoup(svg, "xml")
+
+    # Add lone pair dots
+    dxs = [-6, 6]
+    dy = 25
+    dot_radius = 3
+
+    # Lone pair 1, above oxygen
+    for dx in [-6, 6]:
+        dot = soup.new_tag("circle",
+                           cx=str(svg_x + dx - 2),
+                           cy=str(svg_y - 25),
+                           r="2", fill="blue")
+        soup.svg.append(dot)
+    display(SVG(str(soup)))
 
 #formaldehyde 2D depth
 def assign_visual_depth_multiple(mol, atom_idx, wedge_bonds=[], hash_bonds=[]):
@@ -369,18 +445,26 @@ def view3D_static_acetonitrile():
 def view3D_static_pyrrole():
     display(Image(filename='3D_static_pyrrole.png'))
 
+#allene 3D static
+def view3D_static_allene():
+    display(Image(filename='3D_static_allene.png'))
+
 
 #methylamine 3D interactive 
-def view3D_int_methylamine(): 
-    macords3D = JsmolView.from_file('methylamine.xyz', inline=True)
-    #need to find command to force view 
+def view3D_int_methylamine():
+    mamol = Chem.AddHs(Chem.MolFromSmiles("CN"))
+    AllChem.EmbedMolecule(mamol)
+    Chem.MolToMolFile(mamol, "methylamine.mol")
+
+    macords3D = JsmolView.from_file('methylamine.mol', inline=True)
+    #force view 
     display(macords3D)
     macords3D.script("background white")
     macords3D.script("refresh")
-    macords3D.script("select(atomno=1); lcaocartoon lonepair 'lpa'")
-    transparent_line = "select(atomno=1); lcaocartoon create 'sp3a'; lcaocartoon create 'sp3b'; lcaocartoon create 'sp3c'; lcaocartoon create 'lp'; color lcaocartoon translucent"
+    macords3D.script("select(atomno=2); lcaocartoon lonepair 'lpa'")
+    transparent_ma = "select(atomno=2); lcaocartoon create 'sp3a'; lcaocartoon create 'sp3b'; lcaocartoon create 'sp3c'; lcaocartoon create 'lp'; color lcaocartoon translucent"
     for _ in range (2):
-        macords3D.script(transparent_line)
+        macords3D.script(transparent_ma)
 
 
 #formaldehyde 3D interactive
@@ -462,3 +546,26 @@ def view3D_int_pyrrole():
     p_translucent = ("select(atomno=3); lcaocartoon create 'pz'; color lcaocartoon translucent")
     for _ in range (2):
         pcords3D.script(p_translucent)
+
+def view3D_int_allene():
+    almol = Chem.AddHs(Chem.MolFromSmiles("C=C=C"))
+    AllChem.EmbedMolecule(almol)
+    Chem.MolToMolFile(almol, "allene.mol")
+
+    alcords3D = JsmolView.from_file('allene.mol', inline=True)
+    #force view 
+    display(alcords3D)
+    alcords3D.script("background white")
+    alcords3D.script("refresh")
+    #need to add lonepairs at sp location
+    alcords3D.script("select(atomno=3); lcaocartoon lonepair 'spb'")
+    #limitation: dificult to show the sigma bond hybridized, and the lone pair hybridized 
+    transparent_c3 = "select(atomno=3); lcaocartoon create 'pz'; color lcaocartoon translucent"
+    transparent_c2 = "select(atomno=2); lcaocartoon create 'py'; lcaocartoon create 'px'; lcaocartoon scale 1; color lcaocartoon translucent"
+    transparent_c1 = "select(atomno=1); lcaocartoon create '-pz'; color lcaocartoon translucent"
+    for _ in range (2):
+         alcords3D.script(transparent_c3)
+    for _ in range (2):
+        alcords3D.script(transparent_c2)
+    for _ in range (2):
+        alcords3D.script(transparent_c1)
