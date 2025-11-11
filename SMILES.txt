@@ -7,3 +7,4 @@ acetonitrile, CC#N
 ethyne, C#C
 pyrrole, C1=CNC=C1
 pyrrolidine, C1CCNC1
+allene, C=C=C
