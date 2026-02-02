@@ -12,6 +12,7 @@ import math
 
 # s orbital example code
 def example_code_s_orbital():
+
     # set variable to add hydroges to our model. will call vairable later in another function. 
     eth_mol = Chem.AddHs(Chem.MolFromSmiles("C=C"))
     # takes the molecules connectivity to generate coordinates that can be used for 3D representations
@@ -25,7 +26,7 @@ def example_code_s_orbital():
     # set background to white
     ec3Dso.script("background white")
     # refresh widget to prevent buggs
-    ec3Dso.script("refresh")
+    ##ec3Dso.script("refresh")
     # set variable to make hybrid elements transparent to visually rich representations
     ec3Dso_transparent_line = ("select(atomno=1); lcaocartoon create 's'; color lcaocartoon transparent")
     # for loop to run transparent vairable twice. needed due to bug issues in python 
@@ -104,6 +105,7 @@ def view2D_flat(molecule_name):
         ma_with_h = Chem.AddHs(ma)
         return Draw.MolToImage(ma_with_h)
 
+#methylamine 2D depth
 def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
     soup = BeautifulSoup(svg, "xml")
 
@@ -180,6 +182,7 @@ def view2D_depth_methylamine():
                            r="2", fill="blue")
         soup.svg.append(dot)
     display(SVG(str(soup)))
+
 
 #formaldehyde 2D depth
 def assign_visual_depth_multiple(mol, atom_idx, wedge_bonds=[], hash_bonds=[]):
@@ -450,8 +453,13 @@ def view3D_static_allene():
     display(Image(filename='3D_static_allene.png'))
 
 
+#allene 3D static
+def view3D_static_allene():
+    display(Image(filename='3D_static_allene.png'))
+
+
 #methylamine 3D interactive 
-def view3D_int_methylamine():
+def view3D_int_methylamine(): 
     mamol = Chem.AddHs(Chem.MolFromSmiles("CN"))
     AllChem.EmbedMolecule(mamol)
     Chem.MolToMolFile(mamol, "methylamine.mol")
@@ -461,8 +469,7 @@ def view3D_int_methylamine():
     display(macords3D)
     macords3D.script("background white")
     macords3D.script("refresh")
-    macords3D.script("select(atomno=2); lcaocartoon lonepair 'lpa'")
-    transparent_ma = "select(atomno=2); lcaocartoon create 'sp3a'; lcaocartoon create 'sp3b'; lcaocartoon create 'sp3c'; lcaocartoon create 'lp'; color lcaocartoon translucent"
+    transparent_ma = "select(atomno=1); lcaocartoon create 'sp3a'; lcaocartoon create 'sp3b'; lcaocartoon create 'sp3c'; lcaocartoon create 'sp3d'; color lcaocartoon translucent"
     for _ in range (2):
         macords3D.script(transparent_ma)
 
@@ -546,6 +553,7 @@ def view3D_int_pyrrole():
     p_translucent = ("select(atomno=3); lcaocartoon create 'pz'; color lcaocartoon translucent")
     for _ in range (2):
         pcords3D.script(p_translucent)
+
 
 def view3D_int_allene():
     #set variable to create molecule from smiles and convert to mol file for jsmol
