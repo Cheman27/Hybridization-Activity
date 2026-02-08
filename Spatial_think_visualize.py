@@ -9,6 +9,9 @@ from rdkit.Chem import AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
 from bs4 import BeautifulSoup
 import math
+print("You have successfully imported the necessary libraries")
+print("Note: The bracket to the left of this cell was empty, but now it has a number.")
+print("      This number will change everytime you successfully execute a cell.")
 
 # s orbital example code
 def example_code_s_orbital():
@@ -26,7 +29,7 @@ def example_code_s_orbital():
     # set background to white
     ec3Dso.script("background white")
     # refresh widget to prevent buggs
-    ##ec3Dso.script("refresh")
+    ec3Dso.script("refresh")
     # set variable to make hybrid elements transparent to visually rich representations
     ec3Dso_transparent_line = ("select(atomno=1); lcaocartoon create 's'; color lcaocartoon transparent")
     # for loop to run transparent vairable twice. needed due to bug issues in python 
@@ -105,11 +108,11 @@ def view2D_flat(molecule_name):
         ma_with_h = Chem.AddHs(ma)
         return Draw.MolToImage(ma_with_h)
 
-#methylamine 2D depth
-def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
+#methylamine 2D depth add lonepairs
+def add_lone_pairs_nitrogen_index(svg, nitrogen_idx=1):
     soup = BeautifulSoup(svg, "xml")
 
-    # Find the group for the oxygen atom (usually atom-1)
+    # Find the group for the nitrogen atom (usually atom-1)
     nitrogen_group = soup.find("g", {"class": f"atom-{nitrogen_idx}"})
     if not nitrogen_group:
         print("Could not find nitrogen group.")
@@ -141,27 +144,27 @@ def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
 
     return str(soup)
 
-# Final combined function
+# Final combined methylamine function
 def view2D_depth_methylamine():
     mol = Chem.AddHs(Chem.MolFromSmiles("CN"))
     AllChem.EmbedMolecule(mol)
     AllChem.Compute2DCoords(mol)
 
-    idx_C = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
-    idx_N = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'N'][0]
-    C_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C).GetBonds()]
-    assign_visual_depth_multiple(mol, idx_C, wedge_bonds=[C_bonds[2]], hash_bonds=[C_bonds[1]])
+    idx_Cm = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
+    idx_Nm = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'N'][0]
+    C_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_Cm).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_Cm, wedge_bonds=[C_bonds[2]], hash_bonds=[C_bonds[1]])
 
     # Bond indices around nitrogen
-    N_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_N).GetBonds()] 
+    N_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_Nm).GetBonds()] 
     # Keep N–C bond plain. Assume N_bonds[0] is N–C, others are N–H
-    assign_visual_depth_multiple(mol, idx_N, hash_bonds=[N_bonds[2],N_bonds[1]])
+    assign_visual_depth_multiple(mol, idx_Nm, hash_bonds=[N_bonds[2],N_bonds[1]])
 
     drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
     drawer.DrawMolecule(mol)
     
     # Get drawing coordinates of nitrogen (in SVG space)
-    draw_coords = drawer.GetDrawCoords(idx_N)
+    draw_coords = drawer.GetDrawCoords(idx_Nm)
     svg_x = draw_coords.x
     svg_y = draw_coords.y
 
@@ -195,6 +198,7 @@ def assign_visual_depth_multiple(mol, atom_idx, wedge_bonds=[], hash_bonds=[]):
         else:
             bond.SetBondDir(Chem.BondDir.NONE)
 
+#formaldehyde add lonepairs
 def add_lone_pairs_oxygen_index(svg, oxygen_idx=1):
     soup = BeautifulSoup(svg, "xml")
 
@@ -230,22 +234,22 @@ def add_lone_pairs_oxygen_index(svg, oxygen_idx=1):
 
     return str(soup)
 
-# Final combined function
+# Final combined formaldehyde function
 def view2D_depth_formaldehyde():
     mol = Chem.AddHs(Chem.MolFromSmiles("C=O"))
     AllChem.EmbedMolecule(mol)
     AllChem.Compute2DCoords(mol)
 
-    idx_C = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
-    idx_O = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'O'][0]
-    C_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C).GetBonds()]
-    assign_visual_depth_multiple(mol, idx_C, wedge_bonds=[C_bonds[0]], hash_bonds=[C_bonds[0]])
+    idx_Cf = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
+    idx_Of = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'O'][0]
+    C_bondsf = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_Cf).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_Cf, wedge_bonds=[C_bondsf[0]], hash_bonds=[C_bondsf[0]])
 
     drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
     drawer.DrawMolecule(mol)
     
     # Get drawing coordinates of oxygen (in SVG space)
-    draw_coords = drawer.GetDrawCoords(idx_O)
+    draw_coords = drawer.GetDrawCoords(idx_Of)
     svg_x = draw_coords.x
     svg_y = draw_coords.y
 
@@ -277,8 +281,8 @@ def view2D_depth_formaldehyde():
     display(SVG(str(soup)))
 
 
-#acetonitrile 2D depth
-def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
+#acetonitrile 2D depth add lonepairs
+def add_lone_pairs_nitrogen_index(svg, nitrogen_idx=1):
     soup = BeautifulSoup(svg, "xml")
 
     # Find the group for the oxygen atom (usually atom-1)
@@ -313,7 +317,7 @@ def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
 
     return str(soup)
 
-# Final combined function
+# Final combined acetonitrile function
 def view2D_depth_acetonitrile():
     mol = Chem.AddHs(Chem.MolFromSmiles("CC#N"))
     AllChem.EmbedMolecule(mol)
@@ -364,9 +368,41 @@ def view2D_depth_acetonitrile():
         soup.svg.append(dot)
     display(SVG(str(soup)))
 
+#allene 2D depth           
+def view2D_depth_allene():
+    mol = Chem.AddHs(Chem.MolFromSmiles("C=C=C"))
+    AllChem.EmbedMolecule(mol)
+    AllChem.Compute2DCoords(mol)
+    
+    # Get atom indices
+    idx_C = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
+    idx_C2 = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
+    idx_C3 = [a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == 'C'][0]
 
-#pyrrole 2D depth
-def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
+    # Bond indices around carbon1
+    C_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_C, wedge_bonds=[C_bonds[2]], hash_bonds=[C_bonds[0]])
+
+    #Bond indicies around carbon2
+    C2_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C2).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_C2, wedge_bonds=[C_bonds[0]], hash_bonds=[C_bonds[0]])
+
+    # Bond indices around carbon3
+    C3_bonds = [b.GetIdx() for b in mol.GetAtomWithIdx(idx_C2).GetBonds()]
+    assign_visual_depth_multiple(mol, idx_C3, wedge_bonds=[C_bonds[2]], hash_bonds=[C_bonds[1]])
+
+    drawer = rdMolDraw2D.MolDraw2DSVG(300, 300)
+    drawer.DrawMolecule(mol)
+    
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    soup = BeautifulSoup(svg, "xml")
+
+    display(SVG(str(soup)))
+    
+
+#pyrrole 2D depth add lonepairs
+def add_lone_pairs_nitrogen_index(svg, nitrogen_idx=1):
     soup = BeautifulSoup(svg, "xml")
 
     # Find the group for the oxygen atom (usually atom-1)
@@ -390,7 +426,7 @@ def add_lone_pairs_nitrogen_index(svg, oxygen_idx=1):
             return svg
 
 
-# Final combined function
+# Final combined pyrrole function
 def view2D_depth_pyrrole():
     mol = Chem.AddHs(Chem.MolFromSmiles("C1=CNC=C1"))
     AllChem.EmbedMolecule(mol)
@@ -453,11 +489,6 @@ def view3D_static_allene():
     display(Image(filename='3D_static_allene.png'))
 
 
-#allene 3D static
-def view3D_static_allene():
-    display(Image(filename='3D_static_allene.png'))
-
-
 #methylamine 3D interactive 
 def view3D_int_methylamine(): 
     mamol = Chem.AddHs(Chem.MolFromSmiles("CN"))
@@ -487,12 +518,16 @@ def view3D_int_formaldehyde():
     fcords3D.script("refresh")
     #need to add lonepairs at sp2 locations
     fcords3D.script("select(atomno=2); lcaocartoon lonepair 'sp2b'; lcaocartoon lonepair 'sp2c'")
-    fcords3D.script("select(atomno=2); lcaocartoon create 'pz'")
-    fcords3D.script("select(atomno=1); lcaocartoon create 'pz'")
+    #fcords3D.script("select(atomno=2); lcaocartoon create 'pz'")
+    #fcords3D.script("select(atomno=1); lcaocartoon create 'pz'")
     #need to make next line run twice, to make lobes transparent
-    transparent_f = "select(atomno=2); lcaocartoon create 'sp2a'; lcaocartoon create 'sp2b'; lcaocartoon create 'sp2c'; color lcaocartoon translucent"
+    #transparent_f = "select(atomno=2); lcaocartoon create 'sp2a'; lcaocartoon create 'sp2b'; lcaocartoon create 'sp2c'; color lcaocartoon translucent"
+    transparent_o = "select(atomno=2); lcaocartoon create 'pz'; lcaocartoon create 'sp2a'; lcaocartoon create 'sp2b'; lcaocartoon create 'sp2c'; color lcaocartoon translucent"
+    transparent_c = "select(atomno=1); lcaocartoon create 'pz'; color lcaocartoon translucent"
     for _ in range (2):
-        fcords3D.script(transparent_f)
+        fcords3D.script(transparent_o)
+    for _ in range (2):
+        fcords3D.script(transparent_c)
 
 
 #acetonitrile 3D interactive
@@ -509,30 +544,8 @@ def view3D_int_acetonitrile():
     #need to add lonepairs at sp location
     ancords3D.script("select(atomno=3); lcaocartoon lonepair 'spb'")
     #limitation: dificult to show the sigma bond hybridized, and the lone pair hybridized 
-    transparent_n = "select(atomno=3); lcaocartoon create 'px'; lcaocartoon create 'py'; lcaocartoon create 'spa'; lcaocartoon create 'spb'; color lcaocartoon translucent"
-    transparent_c = "select(atomno=2); lcaocartoon create 'px'; lcaocartoon create 'py'; color lcaocartoon translucent"
-    for _ in range (2):
-         ancords3D.script(transparent_n)
-    for _ in range (2):
-        ancords3D.script(transparent_c)
-
-
-#acetonitrile 3D interactive
-def view3D_int_acetonitrile():
-    anmol = Chem.AddHs(Chem.MolFromSmiles("CC#N"))
-    AllChem.EmbedMolecule(anmol)
-    Chem.MolToMolFile(anmol, "acetonitrile.mol")
-
-    ancords3D = JsmolView.from_file('acetonitrile.mol', inline=True)
-    #force view 
-    display(ancords3D)
-    ancords3D.script("background white")
-    ancords3D.script("refresh")
-    #need to add lonepairs at sp location
-    ancords3D.script("select(atomno=3); lcaocartoon lonepair 'spb'")
-    #limitation: dificult to show the sigma bond hybridized, and the lone pair hybridized 
-    transparent_n = "select(atomno=3); lcaocartoon create 'px'; lcaocartoon create 'py'; lcaocartoon create 'spa'; lcaocartoon create 'spb'; color lcaocartoon translucent"
-    transparent_c = "select(atomno=2); lcaocartoon create 'px'; lcaocartoon create 'py'; color lcaocartoon translucent"
+    transparent_n = "select(atomno=3); lcaocartoon create '-px'; lcaocartoon create 'py'; lcaocartoon create 'spa'; lcaocartoon create 'spb'; color lcaocartoon translucent"
+    transparent_c = "select(atomno=2); lcaocartoon create 'px'; lcaocartoon create '-py'; color lcaocartoon translucent"
     for _ in range (2):
          ancords3D.script(transparent_n)
     for _ in range (2):
@@ -554,7 +567,7 @@ def view3D_int_pyrrole():
     for _ in range (2):
         pcords3D.script(p_translucent)
 
-
+#allene 3D interactive
 def view3D_int_allene():
     #set variable to create molecule from smiles and convert to mol file for jsmol
     almol = Chem.AddHs(Chem.MolFromSmiles("C=C=C"))
@@ -570,7 +583,7 @@ def view3D_int_allene():
     alcords3D.script("refresh")
     #create p orbitals at specified atoms. Include color cordination
     transparent_c3 = "select(atomno=3); lcaocartoon color translucent .4 [255,102,102][255,255,51] create 'pz'"
-    transparent_c2 = "select(atomno=2); lcaocartoon color translucent .4 [255,102,102][255,255,51] create 'py' color translucent .5 [51,51,255][255,51,255] create 'px'"
+    transparent_c2 = "select(atomno=2); lcaocartoon color translucent .4 [255,102,102][255,255,51] create 'py' color translucent .4 [51,51,255][255,51,255] create 'px'"
     transparent_c1 = "select(atomno=1); lcaocartoon color translucent .4 [51,51,255][255,51,255] create '-pz'"
     #force transparent code to be ran twice before moving to next atom. limitation of software requires this step (to my understanding)
     for _ in range (2):
